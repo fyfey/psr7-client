@@ -48,7 +48,7 @@ class CurlHttpClientTest extends TestCase
     public function testPost()
     {
         $client = new CurlHttpClient();
-        $response = $client->post('http://example.org/');
+        $response = $client->post('http://example.org/', null, ['foo' => 'bar']);
         static::assertEquals(200, $response->getStatusCode());
     }
 }

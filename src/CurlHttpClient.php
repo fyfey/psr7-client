@@ -272,6 +272,9 @@ class CurlHttpClient implements HttpClientInterface
         if (null === $headers) {
             $headers = [];
         }
+        if (is_array($body)) {
+            $body = http_build_query($body);
+        }
         $request = new Request('POST', $url, $headers, $body);
         return $this->send($request);
     }
