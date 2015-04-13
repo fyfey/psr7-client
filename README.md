@@ -6,3 +6,5 @@ PSR7 compatible HTTP client library.
 [![License](https://poser.pugx.org/mekras/psr7-client/license.png)](https://packagist.org/packages/mekras/psr7-client)
 [![Build Status](https://travis-ci.org/mekras/psr7-client.svg?branch=develop)](https://travis-ci.org/mekras/psr7-client)
 [![Coverage Status](https://coveralls.io/repos/mekras/psr7-client/badge.png?branch=master)](https://coveralls.io/r/mekras/psr7-client?branch=master)
+
+Under development.
