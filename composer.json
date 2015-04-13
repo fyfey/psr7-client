@@ -1,0 +1,32 @@
+{
+    "name": "mekras/psr7-client",
+    "description": "PSR7 compatible HTTP client library",
+    "type": "library",
+    "keywords": ["psr7", "http", "curl"],
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Михаил Красильников",
+            "email": "m.krasilnikov@yandex.ru"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Mekras\\Http\\Client\\": "src/"
+        }
+    },
+    "require": {
+        "php": "~5.5",
+
+        "guzzlehttp/psr7": "0.1.*@dev",
+        "mekras/interfaces": "~2.0",
+        "psr/http-message": "0.9.*",
+        "psr/log": "~1.0"
+    },
+    "require-dev":
+    {
+        "ext-xdebug": "*",
+        "satooshi/php-coveralls": "dev-master"
+    }
+}
