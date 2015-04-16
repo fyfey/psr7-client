@@ -22,7 +22,7 @@ use Psr\Http\Message\ResponseInterface;
  * @author Михаил Красильников <m.krasilnikov@yandex.ru>
  *
  * @api
- * @since  x.xx
+ * @since  1.00
  */
 class CurlHttpClient implements HttpClientInterface
 {
@@ -52,7 +52,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @param array $options TODO describe
      *
-     * @since x.xx
+     * @since 1.00
      */
     public function __construct(array $options = [])
     {
@@ -68,7 +68,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @return ResponseInterface
      *
-     * @since x.xx
+     * @since 1.00
      */
     public function send(RequestInterface $request)
     {
@@ -145,7 +145,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @deprecated use {@link send()}
      *
-     * @since      x.xx
+     * @since      1.00
      *
      * @SuppressWarnings(PMD.UnusedFormalParameter)
      */
@@ -169,7 +169,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @deprecated use {@link send()}
      *
-     * @since      x.xx
+     * @since      1.00
      *
      * @SuppressWarnings(PMD.UnusedFormalParameter)
      */
@@ -193,7 +193,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @deprecated use {@link send()}
      *
-     * @since      x.xx
+     * @since      1.00
      *
      * @SuppressWarnings(PMD.UnusedFormalParameter)
      */
@@ -216,7 +216,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @deprecated use {@link send()}
      *
-     * @since      x.xx
+     * @since      1.00
      *
      * @SuppressWarnings(PMD.UnusedFormalParameter)
      */
@@ -238,7 +238,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @deprecated use {@link send()}
      *
-     * @since      x.xx
+     * @since      1.00
      *
      * @SuppressWarnings(PMD.UnusedFormalParameter)
      */
@@ -263,7 +263,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @deprecated use {@link send()}
      *
-     * @since      x.xx
+     * @since      1.00
      *
      * @SuppressWarnings(PMD.UnusedFormalParameter)
      */
@@ -291,7 +291,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @deprecated use {@link send()}
      *
-     * @since      x.xx
+     * @since      1.00
      *
      * @SuppressWarnings(PMD.UnusedFormalParameter)
      */
