@@ -321,7 +321,6 @@ class CurlHttpClient implements HttpClientInterface
         if (!$cookies) {
             return $request;
         }
-        $cookies = $response->getHeaderLines('set-cookie');
         $cookieHeaders = [];
         foreach ($cookies as $cookie) {
             $temp = explode(';', $cookie);
@@ -454,7 +453,10 @@ class CurlHttpClient implements HttpClientInterface
 
         $headers = array_keys($request->getHeaders());
         foreach ($headers as $name) {
-            $options[CURLOPT_HTTPHEADER][] = $name . ': ' . $request->getHeader($name);
+            $values = $request->getHeader($name);
+            foreach ($values as $value) {
+                $options[CURLOPT_HTTPHEADER][] = $name . ': ' . $value;
+            }
         }
 
         if ($request->getUri()->getUserInfo()) {
