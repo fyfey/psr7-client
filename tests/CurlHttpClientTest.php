@@ -27,7 +27,7 @@ class CurlHttpClientTest extends TestCase
         $request = new Request('GET', 'http://example.org/');
         $response = $client->send($request);
         static::assertEquals(200, $response->getStatusCode());
-        static::assertEquals('text/html', $response->getHeader('Content-type'));
+        static::assertEquals(['text/html'], $response->getHeader('Content-type'));
         static::assertContains('Example Domain', $response->getBody()->getContents());
     }
 
