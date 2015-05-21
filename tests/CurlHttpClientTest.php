@@ -30,25 +30,4 @@ class CurlHttpClientTest extends TestCase
         static::assertEquals(['text/html'], $response->getHeader('Content-type'));
         static::assertContains('Example Domain', $response->getBody()->getContents());
     }
-
-    /**
-     * Test deprecated method "get"
-     */
-    public function testGet()
-    {
-        $client = new CurlHttpClient();
-        $response = $client->get('http://example.org/');
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertContains('Example Domain', $response->getBody()->getContents());
-    }
-
-    /**
-     * Test deprecated method "post"
-     */
-    public function testPost()
-    {
-        $client = new CurlHttpClient();
-        $response = $client->post('http://example.org/', null, ['foo' => 'bar']);
-        static::assertEquals(200, $response->getStatusCode());
-    }
 }

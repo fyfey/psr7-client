@@ -50,7 +50,16 @@ class CurlHttpClient implements HttpClientInterface
     /**
      * Constructor
      *
-     * @param array $options TODO describe
+     * Available options:
+     *
+     * - follow_redirects : bool — automatically follow HTTP re
+     * - max_redirects : int — maximum nested redirects to follow
+     * - use_cookies : bool — save and send cookies
+     * - decode_content : bool — see CURLOPT_ENCODING
+     * - connection_timeout : int —  connection timeout in seconds
+     * - timeout : int —  overall timeout in seconds
+     *
+     * @param array $options
      *
      * @since 1.00
      */
@@ -131,177 +140,6 @@ class CurlHttpClient implements HttpClientInterface
         $response = $this->followRedirect($request, $response);
 
         return $response;
-    }
-
-    /**
-     * DELETE request
-     *
-     * @param string $url     URL of resource
-     * @param array  $headers HTTP headers
-     * @param mixed  $body    request body
-     * @param array  $options options (see {@link HttpClientInterface})
-     *
-     * @return ResponseInterface response
-     *
-     * @deprecated use {@link send()}
-     *
-     * @since      1.00
-     *
-     * @SuppressWarnings(PMD.UnusedFormalParameter)
-     */
-    public function delete($url, array $headers = null, $body = null, array $options = [])
-    {
-        if (null === $headers) {
-            $headers = [];
-        }
-        $request = new Request('DELETE', $url, $headers, $body);
-        return $this->send($request);
-    }
-
-    /**
-     * GET request
-     *
-     * @param string $url     URL of resource
-     * @param array  $headers HTTP headers
-     * @param array  $options options (see {@link HttpClientInterface})
-     *
-     * @return ResponseInterface response
-     *
-     * @deprecated use {@link send()}
-     *
-     * @since      1.00
-     *
-     * @SuppressWarnings(PMD.UnusedFormalParameter)
-     */
-    public function get($url, array $headers = null, array $options = [])
-    {
-        if (null === $headers) {
-            $headers = [];
-        }
-        $request = new Request('GET', $url, $headers);
-        return $this->send($request);
-    }
-
-    /**
-     * HEAD request
-     *
-     * @param string $url     URL of resource
-     * @param array  $headers HTTP headers
-     * @param array  $options options (see {@link HttpClientInterface})
-     *
-     * @return ResponseInterface response
-     *
-     * @deprecated use {@link send()}
-     *
-     * @since      1.00
-     *
-     * @SuppressWarnings(PMD.UnusedFormalParameter)
-     */
-    public function head($url, array $headers = null, array $options = [])
-    {
-        if (null === $headers) {
-            $headers = [];
-        }
-        $request = new Request('HEAD', $url, $headers);
-        return $this->send($request);
-    }
-
-    /**
-     * OPTIONS request
-     *
-     * @param string $url     URL of resource
-     * @param array  $options options
-     *
-     * @return ResponseInterface response
-     *
-     * @deprecated use {@link send()}
-     *
-     * @since      1.00
-     *
-     * @SuppressWarnings(PMD.UnusedFormalParameter)
-     */
-    public function options($url, array $options = [])
-    {
-        $request = new Request('DELETE', $url);
-        return $this->send($request);
-    }
-
-    /**
-     * PATCH request
-     *
-     * @param string $url     URL of resource
-     * @param array  $headers HTTP headers
-     * @param mixed  $body    resource (should be a string or convertible to string)
-     * @param array  $options options (see {@link HttpClientInterface})
-     *
-     * @return ResponseInterface response
-     *
-     * @deprecated use {@link send()}
-     *
-     * @since      1.00
-     *
-     * @SuppressWarnings(PMD.UnusedFormalParameter)
-     */
-    public function patch($url, array $headers = null, $body = null, array $options = [])
-    {
-        if (null === $headers) {
-            $headers = [];
-        }
-        $request = new Request('PATCH', $url, $headers, $body);
-        return $this->send($request);
-    }
-
-    /**
-     * POST request
-     *
-     * @param string       $url     URL of resource
-     * @param array        $headers HTTP headers
-     * @param array|string $body    POST data
-     * @param array        $options options (see {@link HttpClientInterface})
-     *
-     * @return ResponseInterface response
-     *
-     * @deprecated use {@link send()}
-     *
-     * @since      1.00
-     *
-     * @SuppressWarnings(PMD.UnusedFormalParameter)
-     */
-    public function post($url, array $headers = null, $body = null, array $options = [])
-    {
-        if (null === $headers) {
-            $headers = [];
-        }
-        if (is_array($body)) {
-            $body = http_build_query($body);
-        }
-        $request = new Request('POST', $url, $headers, $body);
-        return $this->send($request);
-    }
-
-    /**
-     * PUT request
-     *
-     * @param string $url     URL of resource
-     * @param array  $headers HTTP headers
-     * @param mixed  $body    resource (should be a string or convertible to string)
-     * @param array  $options options (see {@link HttpClientInterface})
-     *
-     * @return ResponseInterface response
-     *
-     * @deprecated use {@link send()}
-     *
-     * @since      1.00
-     *
-     * @SuppressWarnings(PMD.UnusedFormalParameter)
-     */
-    public function put($url, array $headers = null, $body = null, array $options = [])
-    {
-        if (null === $headers) {
-            $headers = [];
-        }
-        $request = new Request('PUT', $url, $headers, $body);
-        return $this->send($request);
     }
 
     /**

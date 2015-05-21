@@ -12,7 +12,7 @@ use Psr\Http\Message\RequestInterface;
 /**
  * Authentication helper for requests
  *
- * @since x.xx
+ * @since 1.01
  */
 class AuthHelper
 {
@@ -25,7 +25,7 @@ class AuthHelper
      *
      * @return RequestInterface
      *
-     * @since x.xx
+     * @since 1.01
      */
     public function basic(RequestInterface $request, $username, $password)
     {
