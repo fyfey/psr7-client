@@ -7,4 +7,16 @@ PSR7 compatible HTTP client library.
 [![Build Status](https://travis-ci.org/mekras/psr7-client.svg?branch=master)](https://travis-ci.org/mekras/psr7-client)
 [![Coverage Status](https://coveralls.io/repos/mekras/psr7-client/badge.png?branch=master)](https://coveralls.io/r/mekras/psr7-client?branch=master)
 
-Under development.
+Simple cURL based PSR7 compatible HTTP client library.
+
+## Usage
+
+```php
+use GuzzleHttp\Psr7\Request;
+use Mekras\Http\Client\CurlHttpClient;
+
+$client = new CurlHttpClient();
+$request = new Request('GET', 'http://example.org/');
+$response = $client->send($request);
+echo $response->getBody()->getContents());
+```
