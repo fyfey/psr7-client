@@ -3,7 +3,6 @@
     "description": "PSR7 compatible HTTP client library",
     "type": "library",
     "keywords": ["psr7", "http", "curl"],
-    "minimum-stability": "stable",
     "license": "MIT",
     "authors": [
         {
@@ -19,14 +18,20 @@
     "require": {
         "php": "~5.5",
 
-        "guzzlehttp/psr7": "^1.0",
         "mekras/interfaces": "^3.0",
         "psr/http-message": "^1.0",
+        "psr/http-message-implementation": "^1.0",
         "psr/log": "~1.0"
     },
     "require-dev":
     {
         "ext-xdebug": "*",
-        "satooshi/php-coveralls": "dev-master"
+        "guzzlehttp/psr7": "^1.0",
+        "satooshi/php-coveralls": "dev-master",
+        "zendframework/zend-diactoros": "^1.0"
+    },
+    "suggest": {
+        "guzzlehttp/psr7": "As PSR-7 implementation",
+        "zendframework/zend-diactoros": "As PSR-7 implementation"
     }
 }

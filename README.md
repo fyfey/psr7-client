@@ -9,13 +9,20 @@ PSR7 compatible HTTP client library.
 
 Simple cURL based PSR7 compatible HTTP client library.
 
+## Supported libraries
+
+* [guzzlehttp/psr7](https://github.com/guzzle/psr7)
+* [zendframework/zend-diactoros](https://github.com/zendframework/zend-diactoros)
+* other by implementing [ConnectorInterface](src/Connector/ConnectorInterface.php)
+
 ## Usage
 
 ```php
 use GuzzleHttp\Psr7\Request;
+use Mekras\Http\Client\Connector\GuzzleConnector;
 use Mekras\Http\Client\CurlHttpClient;
 
-$client = new CurlHttpClient();
+$client = new CurlHttpClient(new GuzzleConnector());
 $request = new Request('GET', 'http://example.org/');
 $response = $client->send($request);
 echo $response->getBody()->getContents());

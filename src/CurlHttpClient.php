@@ -7,13 +7,13 @@
  */
 namespace Mekras\Http\Client;
 
-use Exception;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Uri;
+use Mekras\Http\Client\Connector\ConnectorInterface;
 use Mekras\Interfaces\Http\Client\HttpClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
+use RuntimeException;
+use Zend\Diactoros\Stream;
 
 /**
  * cURL-based HTTP client
@@ -48,23 +48,33 @@ class CurlHttpClient implements HttpClientInterface
     private $redirectCounter = 0;
 
     /**
+     * PSR-7 provider
+     *
+     * @var ConnectorInterface
+     */
+    private $psr7;
+
+    /**
      * Constructor
      *
      * Available options:
      *
-     * - follow_redirects : bool — automatically follow HTTP re
+     * - follow_redirects : bool — automatically follow HTTP redirects
      * - max_redirects : int — maximum nested redirects to follow
      * - use_cookies : bool — save and send cookies
      * - decode_content : bool — see CURLOPT_ENCODING
      * - connection_timeout : int —  connection timeout in seconds
      * - timeout : int —  overall timeout in seconds
      *
-     * @param array $options
+     * @param ConnectorInterface $psr7    Connector to PSR-7 library
+     * @param array              $options cURL options
      *
+     * @since 3.00 new argument — $psr7 (BC break)
      * @since 1.00
      */
-    public function __construct(array $options = [])
+    public function __construct(ConnectorInterface $psr7, array $options = [])
     {
+        $this->psr7 = $psr7;
         $this->options = array_merge($this->options, $options);
     }
 
@@ -73,7 +83,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @param RequestInterface $request
      *
-     * @throws Exception if request failed (e. g. network problem)
+     * @throws RuntimeException if request failed (e. g. network problem)
      *
      * @return ResponseInterface
      *
@@ -88,23 +98,13 @@ class CurlHttpClient implements HttpClientInterface
             $options[CURLOPT_POSTFIELDS] = $body;
         }
 
-        $ch = curl_init();
-        curl_setopt_array($ch, $options);
-        $raw = curl_exec($ch);
+        $this->request($options, $raw, $info);
 
-        if (curl_errno($ch) > 0) {
-            throw new \RuntimeException(
-                sprintf('Curl error: (%d) %s', curl_errno($ch), curl_error($ch))
-            );
-        }
+        $response = $this->psr7->createResponse();
 
-        $response = new Response();
-
-        $curlInfo = curl_getinfo($ch);
-        $this->redirectCounter = $curlInfo['redirect_count'];
-        $headerSize = $curlInfo['header_size'];
+        $this->redirectCounter += $info['redirect_count'];
+        $headerSize = $info['header_size'];
         $rawHeaders = substr($raw, 0, $headerSize);
-        $content = substr($raw, $headerSize);
 
         // Parse headers
         $allHeaders = explode("\r\n\r\n", $rawHeaders);
@@ -119,23 +119,23 @@ class CurlHttpClient implements HttpClientInterface
                 continue;
             }
             // Status line
-            if (substr(strtolower($header), 0, 4) == 'http') {
-                $temp = explode(' ', $header, 3);
-                $temp2 = explode('/', $temp[0], 2);
-                $response = $response->withProtocolVersion($temp2[1]);
+            if (substr(strtolower($header), 0, 5) == 'http/') {
+                $parts = explode(' ', $header, 3);
+                $response = $response
+                    ->withStatus($parts[1])
+                    ->withProtocolVersion($parts[0]);
                 continue;
             }
             // Extract header
-            $temp = explode(':', $header, 2);
-            $headerName = trim(urldecode($temp[0]));
-            $headerValue = trim(urldecode($temp[1]));
+            $parts = explode(':', $header, 2);
+            $headerName = trim(urldecode($parts[0]));
+            $headerValue = trim(urldecode($parts[1]));
             $response = $this->addHeaderToResponse($response, $headerName, $headerValue);
         }
-        // Write content
-        $response->getBody()->write($content);
-        $response->getBody()->rewind();
 
-        curl_close($ch);
+        $content = (string) substr($raw, $headerSize);
+        $stream = $this->psr7->createStreamFromString($content);
+        $response = $response->withBody($stream);
 
         $response = $this->followRedirect($request, $response);
 
@@ -186,7 +186,7 @@ class CurlHttpClient implements HttpClientInterface
 
                         if ($itemValue != $request->getUri()->getHost() &&
                             !(substr($itemValue, 0, 1) == '.'
-                            && strstr($request->getUri()->getHost(), $itemValue))
+                                && strstr($request->getUri()->getHost(), $itemValue))
                         ) {
                             continue 3;
                         }
@@ -213,10 +213,40 @@ class CurlHttpClient implements HttpClientInterface
     }
 
     /**
+     * Perform request via cURL
+     *
+     * @param array  $options cURL options
+     * @param string $raw     raw response
+     * @param array  $info    cURL response info
+     *
+     * @throws RuntimeException
+     *
+     * @return void
+     *
+     * @since 3.00
+     */
+    protected function request($options, &$raw, &$info)
+    {
+        $ch = curl_init();
+        curl_setopt_array($ch, $options);
+        $raw = curl_exec($ch);
+
+        if (curl_errno($ch) > 0) {
+            throw new RuntimeException(
+                sprintf('Curl error: (%d) %s', curl_errno($ch), curl_error($ch))
+            );
+        }
+        $info = curl_getinfo($ch);
+        curl_close($ch);
+    }
+
+    /**
      * Handles redirection if follow redirection is enabled
      *
      * @param RequestInterface  $request
      * @param ResponseInterface $response
+     *
+     * @throws RuntimeException
      *
      * @return ResponseInterface
      */
@@ -228,17 +258,58 @@ class CurlHttpClient implements HttpClientInterface
         }
 
         if ($this->redirectCounter >= $this->options['max_redirects']) {
-            throw new \RuntimeException('Redirection limit exceeded!');
+            throw new RuntimeException('Redirection limit exceeded!');
         }
 
         if (!$response->getHeader('location')) {
-            throw new \RuntimeException('Location obsolete by redirection!');
+            throw new RuntimeException('Location obsolete by redirection!');
         }
 
-        $this->redirectCounter++;
+        $this->redirectCounter ++;
 
         $location = $response->getHeader('location');
-        $request = $request->withUri(new Uri($location));
+        $parts = parse_url($location[0]);
+
+        $uri = $this->psr7->createUri();
+
+        $scheme = isset($parts['scheme']) ? $parts['scheme'] : $request->getUri()->getScheme();
+        $uri = $uri->withScheme($scheme);
+
+        if (isset($parts['user'])) {
+            $user = $parts['user'];
+            $pass = isset($parts['pass']) ? $parts['pass'] : null;
+        } elseif (strpos($request->getUri()->getUserInfo(), ':') !== false) {
+            list($user, $pass) = explode(':', $request->getUri()->getUserInfo(), 2);
+        } else {
+            $user = $request->getUri()->getUserInfo();
+            $pass = null;
+        }
+        if ($user) {
+            $uri = $uri->withUserInfo($user, $pass);
+        }
+
+        $host = isset($parts['host']) ? $parts['host'] : $request->getUri()->getHost();
+        $uri = $uri->withHost($host);
+
+        $port = isset($parts['port']) ? $parts['port'] : $request->getUri()->getPort();
+        if ($port) {
+            $uri = $uri->withPort($port);
+        }
+
+        $path = isset($parts['path']) ? $parts['path'] : $request->getUri()->getPath();
+
+        $query = isset($parts['query']) ? $parts['query'] : $request->getUri()->getQuery();
+
+        $fragment = isset($parts['fragment'])
+            ? $parts['fragment']
+            : $request->getUri()->getFragment();
+
+        $uri = $uri
+            ->withPath($path)
+            ->withQuery($query)
+            ->withFragment($fragment);
+
+        $request = $request->withUri($uri);
         return $this->send($request);
     }
 
