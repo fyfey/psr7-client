@@ -14,7 +14,7 @@ use Psr\Http\Message\UriInterface;
 /**
  * Interface for connectors to PSR-7 libraries
  *
- * @since x.xx
+ * @since 3.00
  */
 interface ConnectorInterface
 {
@@ -23,7 +23,7 @@ interface ConnectorInterface
      *
      * @return ResponseInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createResponse();
 
@@ -34,7 +34,7 @@ interface ConnectorInterface
      *
      * @return UriInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createUri($uri = '');
 
@@ -45,7 +45,7 @@ interface ConnectorInterface
      *
      * @return StreamInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createStreamFromString($content);
 }

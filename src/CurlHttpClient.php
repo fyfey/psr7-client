@@ -69,7 +69,7 @@ class CurlHttpClient implements HttpClientInterface
      * @param ConnectorInterface $psr7    Connector to PSR-7 library
      * @param array              $options cURL options
      *
-     * @since x.xx new argument — $emptyResponse
+     * @since 3.00 new argument — $psr7 (BC break)
      * @since 1.00
      */
     public function __construct(ConnectorInterface $psr7, array $options = [])
@@ -223,7 +223,7 @@ class CurlHttpClient implements HttpClientInterface
      *
      * @return void
      *
-     * @since x.xx
+     * @since 3.00
      */
     protected function request($options, &$raw, &$info)
     {
