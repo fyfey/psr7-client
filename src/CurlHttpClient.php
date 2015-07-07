@@ -7,11 +7,13 @@
  */
 namespace Mekras\Http\Client;
 
+use Mekras\Http\Client\Connector\ConnectorInterface;
 use Mekras\Interfaces\Http\Client\HttpClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
+use Zend\Diactoros\Stream;
 
 /**
  * cURL-based HTTP client
@@ -46,18 +48,11 @@ class CurlHttpClient implements HttpClientInterface
     private $redirectCounter = 0;
 
     /**
-     * Response template
+     * PSR-7 provider
      *
-     * @var ResponseInterface
+     * @var ConnectorInterface
      */
-    private $response;
-
-    /**
-     * URI template
-     *
-     * @var UriInterface
-     */
-    private $uri;
+    private $psr7;
 
     /**
      * Constructor
@@ -71,20 +66,15 @@ class CurlHttpClient implements HttpClientInterface
      * - connection_timeout : int —  connection timeout in seconds
      * - timeout : int —  overall timeout in seconds
      *
-     * @param ResponseInterface $emptyResponse empty response object to be used as a template
-     * @param UriInterface      $emptyUri      empty response URI to be used as a template
-     * @param array             $options       cURL options
+     * @param ConnectorInterface $psr7    Connector to PSR-7 library
+     * @param array              $options cURL options
      *
      * @since x.xx new argument — $emptyResponse
      * @since 1.00
      */
-    public function __construct(
-        ResponseInterface $emptyResponse,
-        UriInterface $emptyUri,
-        array $options = []
-    ) {
-        $this->response = $emptyResponse;
-        $this->uri = $emptyUri;
+    public function __construct(ConnectorInterface $psr7, array $options = [])
+    {
+        $this->psr7 = $psr7;
         $this->options = array_merge($this->options, $options);
     }
 
@@ -110,12 +100,11 @@ class CurlHttpClient implements HttpClientInterface
 
         $this->request($options, $raw, $info);
 
-        $response = clone $this->response;
+        $response = $this->psr7->createResponse();
 
         $this->redirectCounter += $info['redirect_count'];
         $headerSize = $info['header_size'];
         $rawHeaders = substr($raw, 0, $headerSize);
-        $content = substr($raw, $headerSize);
 
         // Parse headers
         $allHeaders = explode("\r\n\r\n", $rawHeaders);
@@ -143,9 +132,10 @@ class CurlHttpClient implements HttpClientInterface
             $headerValue = trim(urldecode($parts[1]));
             $response = $this->addHeaderToResponse($response, $headerName, $headerValue);
         }
-        // Write content
-        $response->getBody()->write($content);
-        $response->getBody()->rewind();
+
+        $content = (string) substr($raw, $headerSize);
+        $stream = $this->psr7->createStreamFromString($content);
+        $response = $response->withBody($stream);
 
         $response = $this->followRedirect($request, $response);
 
@@ -280,7 +270,11 @@ class CurlHttpClient implements HttpClientInterface
         $location = $response->getHeader('location');
         $parts = parse_url($location[0]);
 
+        $uri = $this->psr7->createUri();
+
         $scheme = isset($parts['scheme']) ? $parts['scheme'] : $request->getUri()->getScheme();
+        $uri = $uri->withScheme($scheme);
+
         if (isset($parts['user'])) {
             $user = $parts['user'];
             $pass = isset($parts['pass']) ? $parts['pass'] : null;
@@ -290,23 +284,31 @@ class CurlHttpClient implements HttpClientInterface
             $user = $request->getUri()->getUserInfo();
             $pass = null;
         }
+        if ($user) {
+            $uri = $uri->withUserInfo($user, $pass);
+        }
+
         $host = isset($parts['host']) ? $parts['host'] : $request->getUri()->getHost();
+        $uri = $uri->withHost($host);
+
         $port = isset($parts['port']) ? $parts['port'] : $request->getUri()->getPort();
+        if ($port) {
+            $uri = $uri->withPort($port);
+        }
+
         $path = isset($parts['path']) ? $parts['path'] : $request->getUri()->getPath();
+
         $query = isset($parts['query']) ? $parts['query'] : $request->getUri()->getQuery();
+
         $fragment = isset($parts['fragment'])
             ? $parts['fragment']
             : $request->getUri()->getFragment();
 
-        $uri = clone $this->uri;
         $uri = $uri
-            ->withScheme($scheme)
-            ->withUserInfo($user, $pass)
-            ->withHost($host)
-            ->withPort($port)
             ->withPath($path)
             ->withQuery($query)
             ->withFragment($fragment);
+
         $request = $request->withUri($uri);
         return $this->send($request);
     }
