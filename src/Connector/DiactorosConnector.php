@@ -18,7 +18,7 @@ use Zend\Diactoros\Uri;
 /**
  * Connector for zendframework/zend-diactoros
  *
- * @since x.xx
+ * @since 3.00
  * @link https://github.com/zendframework/zend-diactoros
  */
 class DiactorosConnector implements ConnectorInterface
@@ -28,7 +28,7 @@ class DiactorosConnector implements ConnectorInterface
      *
      * @return ResponseInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createResponse()
     {
@@ -42,7 +42,7 @@ class DiactorosConnector implements ConnectorInterface
      *
      * @return UriInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createUri($uri = '')
     {
@@ -58,7 +58,7 @@ class DiactorosConnector implements ConnectorInterface
      *
      * @return StreamInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createStreamFromString($content)
     {

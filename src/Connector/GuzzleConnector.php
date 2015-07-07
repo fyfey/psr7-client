@@ -16,7 +16,7 @@ use Psr\Http\Message\UriInterface;
 /**
  * Connector for guzzlehttp/psr7
  *
- * @since x.xx
+ * @since 3.00
  * @link https://github.com/guzzle/psr7
  */
 class GuzzleConnector implements ConnectorInterface
@@ -26,7 +26,7 @@ class GuzzleConnector implements ConnectorInterface
      *
      * @return ResponseInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createResponse()
     {
@@ -40,7 +40,7 @@ class GuzzleConnector implements ConnectorInterface
      *
      * @return UriInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createUri($uri = '')
     {
@@ -54,7 +54,7 @@ class GuzzleConnector implements ConnectorInterface
      *
      * @return StreamInterface
      *
-     * @since x.xx
+     * @since 3.00
      */
     public function createStreamFromString($content)
     {
