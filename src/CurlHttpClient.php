@@ -184,7 +184,7 @@ class CurlHttpClient implements HttpClientInterface
 
                         if ($itemValue != $request->getUri()->getHost() &&
                             !(substr($itemValue, 0, 1) == '.'
-                                && strstr($request->getUri()->getHost(), $itemValue))
+                                && strpos($request->getUri()->getHost(), $itemValue) !== false)
                         ) {
                             continue 3;
                         }
