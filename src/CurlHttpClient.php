@@ -7,15 +7,21 @@
  */
 namespace Mekras\Http\Client;
 
-use Mekras\Http\Client\Connector\ConnectorInterface;
-use Mekras\Interfaces\Http\Client\HttpClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use RuntimeException;
 
 /**
  * cURL-based HTTP client
+ *
+ * Available constructor options (see also {@link getDefaultOptions}):
+ *
+ * - connection_timeout : int —  connection timeout in seconds
+ * - decode_content : bool — see CURLOPT_ENCODING
+ * - follow_redirects : bool — automatically follow HTTP redirects
+ * - max_redirects : int — maximum nested redirects to follow
+ * - timeout : int —  overall timeout in seconds
+ * - use_cookies : bool — save and send cookies
  *
  * @author Kemist <kemist1980@gmail.com>
  * @author Михаил Красильников <m.krasilnikov@yandex.ru>
@@ -23,60 +29,8 @@ use RuntimeException;
  * @api
  * @since  1.00
  */
-class CurlHttpClient implements HttpClientInterface
+class CurlHttpClient extends AbstractHttpClient
 {
-    /**
-     * Client options
-     *
-     * @var array
-     */
-    private $options = [
-        'follow_redirects' => true,
-        'max_redirects' => 10,
-        'use_cookies' => true,
-        'decode_content' => true,
-        'connection_timeout' => 3,
-        'timeout' => 10
-    ];
-
-    /**
-     * Redirect counter
-     *
-     * @var int
-     */
-    private $redirectCounter = 0;
-
-    /**
-     * PSR-7 provider
-     *
-     * @var ConnectorInterface
-     */
-    private $psr7;
-
-    /**
-     * Constructor
-     *
-     * Available options:
-     *
-     * - follow_redirects : bool — automatically follow HTTP redirects
-     * - max_redirects : int — maximum nested redirects to follow
-     * - use_cookies : bool — save and send cookies
-     * - decode_content : bool — see CURLOPT_ENCODING
-     * - connection_timeout : int —  connection timeout in seconds
-     * - timeout : int —  overall timeout in seconds
-     *
-     * @param ConnectorInterface $psr7    Connector to PSR-7 library
-     * @param array              $options cURL options
-     *
-     * @since 3.00 new argument — $psr7 (BC break)
-     * @since 1.00
-     */
-    public function __construct(ConnectorInterface $psr7, array $options = [])
-    {
-        $this->psr7 = $psr7;
-        $this->options = array_merge($this->options, $options);
-    }
-
     /**
      * Perform an HTTP request and return response
      *
@@ -140,6 +94,24 @@ class CurlHttpClient implements HttpClientInterface
         $response = $this->followRedirect($request, $response);
 
         return $response;
+    }
+
+    /**
+     * Return available options and there default values
+     *
+     * @return array
+     *
+     * @since x.xx
+     */
+    public function getDefaultOptions()
+    {
+        return array_merge(
+            parent::getDefaultOptions(),
+            [
+                'decode_content' => true,
+                'use_cookies' => true
+            ]
+        );
     }
 
     /**
@@ -241,80 +213,6 @@ class CurlHttpClient implements HttpClientInterface
     }
 
     /**
-     * Handles redirection if follow redirection is enabled
-     *
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
-     *
-     * @throws RuntimeException
-     *
-     * @return ResponseInterface
-     */
-    private function followRedirect(RequestInterface $request, ResponseInterface $response)
-    {
-        $statusCode = $response->getStatusCode();
-        if ($statusCode < 300 || $statusCode >= 400 || !$this->options['follow_redirects']) {
-            return $response;
-        }
-
-        if ($this->redirectCounter >= $this->options['max_redirects']) {
-            throw new RuntimeException('Redirection limit exceeded!');
-        }
-
-        if (!$response->getHeader('location')) {
-            throw new RuntimeException('Location obsolete by redirection!');
-        }
-
-        $this->redirectCounter ++;
-
-        $location = $response->getHeader('location');
-        $parts = parse_url($location[0]);
-
-        $uri = $this->psr7->createUri();
-
-        $scheme = isset($parts['scheme']) ? $parts['scheme'] : $request->getUri()->getScheme();
-        $uri = $uri->withScheme($scheme);
-
-        if (isset($parts['user'])) {
-            $user = $parts['user'];
-            $pass = isset($parts['pass']) ? $parts['pass'] : null;
-        } elseif (strpos($request->getUri()->getUserInfo(), ':') !== false) {
-            list($user, $pass) = explode(':', $request->getUri()->getUserInfo(), 2);
-        } else {
-            $user = $request->getUri()->getUserInfo();
-            $pass = null;
-        }
-        if ($user) {
-            /** @var UriInterface $uri */
-            $uri = $uri->withUserInfo($user, $pass);
-        }
-
-        $host = isset($parts['host']) ? $parts['host'] : $request->getUri()->getHost();
-        $uri = $uri->withHost($host);
-
-        $port = isset($parts['port']) ? $parts['port'] : $request->getUri()->getPort();
-        if ($port) {
-            $uri = $uri->withPort($port);
-        }
-
-        $path = isset($parts['path']) ? $parts['path'] : $request->getUri()->getPath();
-
-        $query = isset($parts['query']) ? $parts['query'] : $request->getUri()->getQuery();
-
-        $fragment = isset($parts['fragment'])
-            ? $parts['fragment']
-            : $request->getUri()->getFragment();
-
-        $uri = $uri
-            ->withPath($path)
-            ->withQuery($query)
-            ->withFragment($fragment);
-
-        $request = $request->withUri($uri);
-        return $this->send($request);
-    }
-
-    /**
      * Generates curl options
      *
      * @param RequestInterface $request
@@ -374,24 +272,5 @@ class CurlHttpClient implements HttpClientInterface
         }
 
         return $options;
-    }
-
-    /**
-     * Adds a header to the response object
-     *
-     * @param ResponseInterface $response
-     * @param string            $name
-     * @param string            $value
-     *
-     * @return ResponseInterface
-     */
-    private function addHeaderToResponse($response, $name, $value)
-    {
-        if ($response->hasHeader($name)) {
-            $response = $response->withAddedHeader($name, $value);
-        } else {
-            $response = $response->withHeader($name, $value);
-        }
-        return $response;
     }
 }
