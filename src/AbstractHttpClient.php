@@ -18,7 +18,7 @@ use RuntimeException;
 /**
  * Abstract HTTP client
  *
- * @since x.xx
+ * @since 3.02
  */
 abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactory
 {
@@ -27,7 +27,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      *
      * @var ConnectorInterface
      *
-     * @since x.xx
+     * @since 3.02
      */
     protected $psr7;
 
@@ -36,7 +36,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      *
      * @var array
      *
-     * @since x.xx
+     * @since 3.02
      */
     protected $options;
 
@@ -45,7 +45,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      *
      * @var int
      *
-     * @since x.xx
+     * @since 3.02
      */
     protected $redirectCounter;
 
@@ -62,7 +62,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      * @param ConnectorInterface $psr7    Connector to PSR-7 library
      * @param array              $options Client options
      *
-     * @since x.xx
+     * @since 3.02
      */
     public function __construct(ConnectorInterface $psr7, array $options = [])
     {
@@ -81,7 +81,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      *
      * @return array
      *
-     * @since x.xx
+     * @since 3.02
      */
     public function getDefaultOptions()
     {
@@ -98,7 +98,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      *
      * @return ResponseInterface
      *
-     * @since x.xx
+     * @since 3.02
      */
     public function createEmptyResponse()
     {
@@ -114,7 +114,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      *
      * @return ResponseInterface
      *
-     * @since x.xx
+     * @since 3.02
      */
     protected function addHeaderToResponse($response, $name, $value)
     {
@@ -136,7 +136,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      *
      * @return ResponseInterface
      *
-     * @since x.xx
+     * @since 3.02
      */
     protected function followRedirect(RequestInterface $request, ResponseInterface $response)
     {

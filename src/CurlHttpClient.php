@@ -101,7 +101,7 @@ class CurlHttpClient extends AbstractHttpClient
      *
      * @return array
      *
-     * @since x.xx
+     * @since 3.02
      */
     public function getDefaultOptions()
     {
