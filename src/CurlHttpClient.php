@@ -11,6 +11,7 @@ use Mekras\Http\Client\Connector\ConnectorInterface;
 use Mekras\Interfaces\Http\Client\HttpClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 
 /**
@@ -133,6 +134,7 @@ class CurlHttpClient implements HttpClientInterface
 
         $content = (string) substr($raw, $headerSize);
         $stream = $this->psr7->createStreamFromString($content);
+        /** @var ResponseInterface $response */
         $response = $response->withBody($stream);
 
         $response = $this->followRedirect($request, $response);
@@ -283,6 +285,7 @@ class CurlHttpClient implements HttpClientInterface
             $pass = null;
         }
         if ($user) {
+            /** @var UriInterface $uri */
             $uri = $uri->withUserInfo($user, $pass);
         }
 
