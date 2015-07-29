@@ -11,9 +11,7 @@ use Mekras\Http\Client\Connector\ConnectorInterface;
 use Mekras\Interfaces\Http\Client\HttpClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 use RuntimeException;
-use Zend\Diactoros\Stream;
 
 /**
  * cURL-based HTTP client
