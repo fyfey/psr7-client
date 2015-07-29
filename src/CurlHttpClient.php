@@ -1,6 +1,6 @@
 <?php
 /**
- * PSR7 compatible HTTP client
+ * PSR-7 compatible HTTP client
  *
  * @author  Михаил Красильников <m.krasilnikov@yandex.ru>
  * @license http://opensource.org/licenses/MIT MIT
