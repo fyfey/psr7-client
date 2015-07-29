@@ -27,3 +27,21 @@ $request = new Request('GET', 'http://example.org/');
 $response = $client->send($request);
 echo $response->getBody()->getContents());
 ```
+
+## Options
+
+Options can be set via second argument in constructor. Available options are:
+
+* `follow_redirects` (bool) — automatically follow HTTP redirects;
+* `max_redirects` (int) — maximum nested redirects to follow;
+* `use_cookies` (bool) — save and send cookies;
+* `decode_content` (bool) — see CURLOPT_ENCODING;
+* `connection_timeout` (int) —  connection timeout in seconds;
+* `timeout` (int) —  overall timeout in seconds.
+
+```php
+use Mekras\Http\Client\Connector\GuzzleConnector;
+use Mekras\Http\Client\CurlHttpClient;
+
+$client = new CurlHttpClient(new GuzzleConnector(), ['timeout' => 60]);
+```
