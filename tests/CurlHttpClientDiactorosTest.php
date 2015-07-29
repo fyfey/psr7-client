@@ -1,6 +1,6 @@
 <?php
 /**
- * PSR7 compatible HTTP client
+ * PSR-7 compatible HTTP client
  *
  * @author  Михаил Красильников <m.krasilnikov@yandex.ru>
  * @license http://opensource.org/licenses/MIT MIT
@@ -10,6 +10,7 @@ namespace Mekras\Http\Client\Tests;
 use Mekras\Http\Client\Connector\DiactorosConnector;
 use Mekras\Http\Client\CurlHttpClient;
 use PHPUnit_Framework_TestCase as TestCase;
+use Psr\Http\Message\RequestInterface;
 use Zend\Diactoros\Request;
 use Zend\Diactoros\Response;
 
@@ -83,5 +84,26 @@ class CurlHttpClientDiactorosTest extends TestCase
         $response = $client->send($request);
         static::assertEquals(200, $response->getStatusCode());
         static::assertEquals('FOO', $response->getBody()->getContents());
+    }
+
+
+    /**
+     * Test sending body
+     */
+    public function testBody()
+    {
+        $client = $this->getMock(CurlHttpClient::class, ['request'], [new DiactorosConnector()]);
+        $client->expects(static::once())->method('request')->willReturnCallback(
+            function ($options, &$raw, &$info) {
+                static::assertArrayHasKey(CURLOPT_POSTFIELDS, $options);
+                static::assertEquals('body', $options[CURLOPT_POSTFIELDS]);
+            }
+        );
+
+        /** @var RequestInterface $request */
+        $request = (new Request('http://example.org/'))
+            ->withBody(\GuzzleHttp\Psr7\stream_for('body'));
+        /** @var CurlHttpClient $client */
+        $client->send($request);
     }
 }

@@ -1,6 +1,6 @@
 {
     "name": "mekras/psr7-client",
-    "description": "PSR7 compatible HTTP client library",
+    "description": "PSR-7 compatible HTTP client library",
     "type": "library",
     "keywords": ["psr7", "http", "curl"],
     "license": "MIT",

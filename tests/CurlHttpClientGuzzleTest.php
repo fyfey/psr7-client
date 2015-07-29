@@ -1,6 +1,6 @@
 <?php
 /**
- * PSR7 compatible HTTP client
+ * PSR-7 compatible HTTP client
  *
  * @author  Михаил Красильников <m.krasilnikov@yandex.ru>
  * @license http://opensource.org/licenses/MIT MIT
@@ -11,6 +11,7 @@ use GuzzleHttp\Psr7\Request;
 use Mekras\Http\Client\Connector\GuzzleConnector;
 use Mekras\Http\Client\CurlHttpClient;
 use PHPUnit_Framework_TestCase as TestCase;
+use Psr\Http\Message\RequestInterface;
 
 /**
  * Tests for Mekras\Http\Client\CurlHttpClient
@@ -82,5 +83,25 @@ class CurlHttpClientGuzzleTest extends TestCase
         $response = $client->send($request);
         static::assertEquals(200, $response->getStatusCode());
         static::assertEquals('FOO', $response->getBody()->getContents());
+    }
+
+    /**
+     * Test sending body
+     */
+    public function testBody()
+    {
+        $client = $this->getMock(CurlHttpClient::class, ['request'], [new GuzzleConnector()]);
+        $client->expects(static::once())->method('request')->willReturnCallback(
+            function ($options, &$raw, &$info) {
+                static::assertArrayHasKey(CURLOPT_POSTFIELDS, $options);
+                static::assertEquals('body', $options[CURLOPT_POSTFIELDS]);
+            }
+        );
+
+        /** @var RequestInterface $request */
+        $request = (new Request('GET', 'http://example.org/'))
+            ->withBody(\GuzzleHttp\Psr7\stream_for('body'));
+        /** @var CurlHttpClient $client */
+        $client->send($request);
     }
 }

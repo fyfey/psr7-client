@@ -1,6 +1,6 @@
 <?php
 /**
- * PSR7 compatible HTTP client
+ * PSR-7 compatible HTTP client
  *
  * @author  Михаил Красильников <m.krasilnikov@yandex.ru>
  * @license http://opensource.org/licenses/MIT MIT
@@ -13,7 +13,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
-use Zend\Diactoros\Stream;
 
 /**
  * cURL-based HTTP client
@@ -36,8 +35,8 @@ class CurlHttpClient implements HttpClientInterface
         'max_redirects' => 10,
         'use_cookies' => true,
         'decode_content' => true,
-        'connection_timeout' => 30,
-        'timeout' => 60
+        'connection_timeout' => 3,
+        'timeout' => 10
     ];
 
     /**
@@ -135,6 +134,7 @@ class CurlHttpClient implements HttpClientInterface
 
         $content = (string) substr($raw, $headerSize);
         $stream = $this->psr7->createStreamFromString($content);
+        /** @var ResponseInterface $response */
         $response = $response->withBody($stream);
 
         $response = $this->followRedirect($request, $response);
@@ -186,7 +186,7 @@ class CurlHttpClient implements HttpClientInterface
 
                         if ($itemValue != $request->getUri()->getHost() &&
                             !(substr($itemValue, 0, 1) == '.'
-                                && strstr($request->getUri()->getHost(), $itemValue))
+                                && strpos($request->getUri()->getHost(), $itemValue) !== false)
                         ) {
                             continue 3;
                         }
@@ -285,6 +285,7 @@ class CurlHttpClient implements HttpClientInterface
             $pass = null;
         }
         if ($user) {
+            /** @var UriInterface $uri */
             $uri = $uri->withUserInfo($user, $pass);
         }
 

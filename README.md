@@ -1,13 +1,13 @@
-# PSR7 HTTP client library
+# PSR-7 HTTP client library
 
-PSR7 compatible HTTP client library.
+[PSR-7](http://www.php-fig.org/psr/psr-7/) compatible HTTP client library.
 
 [![Latest Stable Version](https://poser.pugx.org/mekras/psr7-client/v/stable.png)](https://packagist.org/packages/mekras/psr7-client)
 [![License](https://poser.pugx.org/mekras/psr7-client/license.png)](https://packagist.org/packages/mekras/psr7-client)
 [![Build Status](https://travis-ci.org/mekras/psr7-client.svg?branch=master)](https://travis-ci.org/mekras/psr7-client)
 [![Coverage Status](https://coveralls.io/repos/mekras/psr7-client/badge.png?branch=master)](https://coveralls.io/r/mekras/psr7-client?branch=master)
 
-Simple cURL based PSR7 compatible HTTP client library.
+Simple cURL based PSR-7 compatible HTTP client library.
 
 ## Supported libraries
 
@@ -26,4 +26,22 @@ $client = new CurlHttpClient(new GuzzleConnector());
 $request = new Request('GET', 'http://example.org/');
 $response = $client->send($request);
 echo $response->getBody()->getContents());
+```
+
+## Options
+
+Options can be set via second argument in constructor. Available options are:
+
+* `follow_redirects` (bool) — automatically follow HTTP redirects;
+* `max_redirects` (int) — maximum nested redirects to follow;
+* `use_cookies` (bool) — save and send cookies;
+* `decode_content` (bool) — see CURLOPT_ENCODING;
+* `connection_timeout` (int) —  connection timeout in seconds;
+* `timeout` (int) —  overall timeout in seconds.
+
+```php
+use Mekras\Http\Client\Connector\GuzzleConnector;
+use Mekras\Http\Client\CurlHttpClient;
+
+$client = new CurlHttpClient(new GuzzleConnector(), ['timeout' => 60]);
 ```
