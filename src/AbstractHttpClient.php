@@ -9,6 +9,7 @@ namespace Mekras\Http\Client;
 
 use Mekras\Http\Client\Connector\ConnectorInterface;
 use Mekras\Interfaces\Http\Client\HttpClientInterface;
+use Mekras\Interfaces\Http\Message\ResponseFactory;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -19,12 +20,14 @@ use RuntimeException;
  *
  * @since x.xx
  */
-abstract class AbstractHttpClient implements HttpClientInterface
+abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactory
 {
     /**
      * PSR-7 provider
      *
      * @var ConnectorInterface
+     *
+     * @since x.xx
      */
     protected $psr7;
 
@@ -32,6 +35,8 @@ abstract class AbstractHttpClient implements HttpClientInterface
      * Client options
      *
      * @var array
+     *
+     * @since x.xx
      */
     protected $options;
 
@@ -39,6 +44,8 @@ abstract class AbstractHttpClient implements HttpClientInterface
      * Redirect counter
      *
      * @var int
+     *
+     * @since x.xx
      */
     protected $redirectCounter;
 
@@ -87,6 +94,18 @@ abstract class AbstractHttpClient implements HttpClientInterface
     }
 
     /**
+     * Create empty HTTP response
+     *
+     * @return ResponseInterface
+     *
+     * @since x.xx
+     */
+    public function createEmptyResponse()
+    {
+        return $this->psr7->createResponse();
+    }
+
+    /**
      * Adds a header to the response object
      *
      * @param ResponseInterface $response
@@ -94,6 +113,8 @@ abstract class AbstractHttpClient implements HttpClientInterface
      * @param string            $value
      *
      * @return ResponseInterface
+     *
+     * @since x.xx
      */
     protected function addHeaderToResponse($response, $name, $value)
     {
@@ -114,6 +135,8 @@ abstract class AbstractHttpClient implements HttpClientInterface
      * @throws RuntimeException
      *
      * @return ResponseInterface
+     *
+     * @since x.xx
      */
     protected function followRedirect(RequestInterface $request, ResponseInterface $response)
     {
