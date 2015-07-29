@@ -16,6 +16,7 @@ use Psr\Http\Message\RequestInterface;
 /**
  * Tests for Mekras\Http\Client\CurlHttpClient
  *
+ * @covers Mekras\Http\Client\AbstractHttpClient
  * @covers Mekras\Http\Client\CurlHttpClient
  * @covers Mekras\Http\Client\Connector\GuzzleConnector
  */
