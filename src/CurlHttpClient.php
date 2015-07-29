@@ -35,8 +35,8 @@ class CurlHttpClient implements HttpClientInterface
         'max_redirects' => 10,
         'use_cookies' => true,
         'decode_content' => true,
-        'connection_timeout' => 30,
-        'timeout' => 60
+        'connection_timeout' => 3,
+        'timeout' => 10
     ];
 
     /**
