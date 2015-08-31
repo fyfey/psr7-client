@@ -32,16 +32,26 @@ echo $response->getBody()->getContents());
 
 Options can be set via second argument in constructor. Available options are:
 
+* `connection_timeout` (int) —  connection timeout in seconds;
+* `curl_options` (array) —  custom cURL options;
+* `decode_content` (bool) — see CURLOPT_ENCODING;
 * `follow_redirects` (bool) — automatically follow HTTP redirects;
 * `max_redirects` (int) — maximum nested redirects to follow;
-* `use_cookies` (bool) — save and send cookies;
-* `decode_content` (bool) — see CURLOPT_ENCODING;
-* `connection_timeout` (int) —  connection timeout in seconds;
+* `ssl_verify_peer` (bool) — verify peer when using SSL
 * `timeout` (int) —  overall timeout in seconds.
+* `use_cookies` (bool) — save and send cookies;
 
 ```php
 use Mekras\Http\Client\Connector\GuzzleConnector;
 use Mekras\Http\Client\CurlHttpClient;
 
-$client = new CurlHttpClient(new GuzzleConnector(), ['timeout' => 60]);
+$client = new CurlHttpClient(
+    new GuzzleConnector(),
+    [
+        'timeout' => 60,
+        'curl_options' => [
+            CURLOPT_CAPATH => '/path/to/ca'
+        ]
+    ]
+);
 ```

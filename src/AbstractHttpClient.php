@@ -57,6 +57,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
      * - connection_timeout : int —  connection timeout in seconds
      * - follow_redirects : bool — automatically follow HTTP redirects
      * - max_redirects : int — maximum nested redirects to follow
+     * - ssl_verify_peer : bool — verify peer when using SSL
      * - timeout : int —  overall timeout in seconds
      *
      * @param ConnectorInterface $psr7    Connector to PSR-7 library
@@ -89,6 +90,7 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
             'connection_timeout' => 3,
             'follow_redirects' => true,
             'max_redirects' => 10,
+            'ssl_verify_peer' => true,
             'timeout' => 10
         ];
     }

@@ -14,13 +14,10 @@ use RuntimeException;
 /**
  * cURL-based HTTP client
  *
- * Available constructor options (see also {@link getDefaultOptions}):
+ * Additional constructor options (see also {@link AbstractHttpClient::__construct}):
  *
- * - connection_timeout : int —  connection timeout in seconds
+ * - curl_options : array — {@link http://php.net/manual/ru/function.curl-setopt.php cURL options}
  * - decode_content : bool — see CURLOPT_ENCODING
- * - follow_redirects : bool — automatically follow HTTP redirects
- * - max_redirects : int — maximum nested redirects to follow
- * - timeout : int —  overall timeout in seconds
  * - use_cookies : bool — save and send cookies
  *
  * @author Kemist <kemist1980@gmail.com>
@@ -108,6 +105,7 @@ class CurlHttpClient extends AbstractHttpClient
         return array_merge(
             parent::getDefaultOptions(),
             [
+                'curl_options' => [],
                 'decode_content' => true,
                 'use_cookies' => true
             ]
@@ -213,7 +211,7 @@ class CurlHttpClient extends AbstractHttpClient
     }
 
     /**
-     * Generates curl options
+     * Generates cURL options
      *
      * @param RequestInterface $request
      *
@@ -230,10 +228,12 @@ class CurlHttpClient extends AbstractHttpClient
 
         $options[CURLOPT_HTTP_VERSION] = $request->getProtocolVersion();
         $options[CURLOPT_URL] = (string) $request->getUri();
+
         $options[CURLOPT_CONNECTTIMEOUT] = $this->options['connection_timeout'];
-        $options[CURLOPT_TIMEOUT] = $this->options['timeout'];
         $options[CURLOPT_FOLLOWLOCATION] = $this->options['follow_redirects'];
         $options[CURLOPT_MAXREDIRS] = $this->options['max_redirects'];
+        $options[CURLOPT_SSL_VERIFYPEER] = $this->options['ssl_verify_peer'];
+        $options[CURLOPT_TIMEOUT] = $this->options['timeout'];
 
         if ($this->options['decode_content'] && $request->hasHeader('accept-encoding')) {
             $options[CURLOPT_ENCODING] = $request->getHeader('accept-encoding');
