@@ -239,7 +239,7 @@ class CurlHttpClient extends AbstractHttpClient
             $options[CURLOPT_ENCODING] = $request->getHeader('accept-encoding');
         }
         if ($this->options['use_cookies'] && $request->hasHeader('cookie')) {
-            $options[CURLOPT_COOKIE] = $request->getHeader('cookie');
+            $options[CURLOPT_COOKIE] = implode('; ', $request->getHeader('cookie'));
         }
 
         switch ($request->getMethod()) {
