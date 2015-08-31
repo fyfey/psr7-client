@@ -87,7 +87,6 @@ class CurlHttpClientDiactorosTest extends TestCase
         static::assertEquals('FOO', $response->getBody()->getContents());
     }
 
-
     /**
      * Test sending body
      */
@@ -104,6 +103,27 @@ class CurlHttpClientDiactorosTest extends TestCase
         /** @var RequestInterface $request */
         $request = (new Request('http://example.org/'))
             ->withBody(\GuzzleHttp\Psr7\stream_for('body'));
+        /** @var CurlHttpClient $client */
+        $client->send($request);
+    }
+
+    /**
+     * Test cookies
+     */
+    public function testCookies()
+    {
+        $client = $this->getMock(CurlHttpClient::class, ['request'], [new DiactorosConnector()]);
+        $client->expects(static::once())->method('request')->willReturnCallback(
+            function ($options, &$raw, &$info) {
+                static::assertArrayHasKey(CURLOPT_COOKIE, $options);
+                static::assertEquals('foo=bar; bar=baz', $options[CURLOPT_COOKIE]);
+            }
+        );
+
+        /** @var RequestInterface $request */
+        $request = (new Request('http://example.org/'))
+            ->withHeader('Cookie', 'foo=bar')
+            ->withAddedHeader('Cookie', 'bar=baz');
         /** @var CurlHttpClient $client */
         $client->send($request);
     }

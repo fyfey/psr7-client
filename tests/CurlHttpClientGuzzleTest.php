@@ -105,4 +105,25 @@ class CurlHttpClientGuzzleTest extends TestCase
         /** @var CurlHttpClient $client */
         $client->send($request);
     }
+
+    /**
+     * Test cookies
+     */
+    public function testCookies()
+    {
+        $client = $this->getMock(CurlHttpClient::class, ['request'], [new GuzzleConnector()]);
+        $client->expects(static::once())->method('request')->willReturnCallback(
+            function ($options, &$raw, &$info) {
+                static::assertArrayHasKey(CURLOPT_COOKIE, $options);
+                static::assertEquals('foo=bar; bar=baz', $options[CURLOPT_COOKIE]);
+            }
+        );
+
+        /** @var RequestInterface $request */
+        $request = (new Request('GET', 'http://example.org/'))
+            ->withHeader('Cookie', 'foo=bar')
+            ->withAddedHeader('Cookie', 'bar=baz');
+        /** @var CurlHttpClient $client */
+        $client->send($request);
+    }
 }
