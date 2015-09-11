@@ -29,6 +29,7 @@ class CurlHttpClientGuzzleTest extends TestCase
     {
         $client = new CurlHttpClient(new GuzzleConnector());
         $request = new Request('GET', 'http://example.org/');
+        $request = $request->withHeader('Accept-Encoding', 'text/html');
         $response = $client->send($request);
         static::assertEquals(200, $response->getStatusCode());
         static::assertEquals(['text/html'], $response->getHeader('Content-type'));

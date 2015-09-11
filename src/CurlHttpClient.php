@@ -236,7 +236,7 @@ class CurlHttpClient extends AbstractHttpClient
         $options[CURLOPT_TIMEOUT] = $this->options['timeout'];
 
         if ($this->options['decode_content'] && $request->hasHeader('accept-encoding')) {
-            $options[CURLOPT_ENCODING] = $request->getHeader('accept-encoding');
+            $options[CURLOPT_ENCODING] = $request->getHeaderLine('accept-encoding');
         }
         if ($this->options['use_cookies'] && $request->hasHeader('cookie')) {
             $options[CURLOPT_COOKIE] = implode('; ', $request->getHeader('cookie'));
