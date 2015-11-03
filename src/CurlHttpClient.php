@@ -226,7 +226,7 @@ class CurlHttpClient extends AbstractHttpClient
         $options[CURLOPT_HEADER] = true;
         $options[CURLOPT_RETURNTRANSFER] = true;
 
-        $options[CURLOPT_HTTP_VERSION] = $request->getProtocolVersion();
+        $options[CURLOPT_HTTP_VERSION] = $this->getProtocolVersion($request->getProtocolVersion());
         $options[CURLOPT_URL] = (string) $request->getUri();
 
         $options[CURLOPT_CONNECTTIMEOUT] = $this->options['connection_timeout'];
@@ -272,5 +272,15 @@ class CurlHttpClient extends AbstractHttpClient
         }
 
         return $options;
+    }
+
+    private function getProtocolVersion($requestVersion)
+    {
+        switch ($requestVersion) {
+            case "1.0": return CURL_HTTP_VERSION_1_0;
+            case "1.1": return CURL_HTTP_VERSION_1_1;
+            case "2.0": throw new \UnexpectedValueException('2.0 not supported');
+            default:    return CURL_HTTP_VERSION_NONE;
+        }
     }
 }
