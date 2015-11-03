@@ -7,9 +7,11 @@
  */
 namespace Mekras\Http\Client;
 
+use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
+use UnexpectedValueException;
 
 /**
  * cURL-based HTTP client
@@ -22,6 +24,7 @@ use RuntimeException;
  *
  * @author Kemist <kemist1980@gmail.com>
  * @author Михаил Красильников <m.krasilnikov@yandex.ru>
+ * @author Blake Williams <github@shabbyrobe.org>
  *
  * @api
  * @since  1.00
@@ -34,6 +37,7 @@ class CurlHttpClient extends AbstractHttpClient
      * @param RequestInterface $request
      *
      * @throws RuntimeException if request failed (e. g. network problem)
+     * @throws InvalidArgumentException
      *
      * @return ResponseInterface
      *
@@ -59,17 +63,17 @@ class CurlHttpClient extends AbstractHttpClient
         // Parse headers
         $allHeaders = explode("\r\n\r\n", $rawHeaders);
         $lastHeaders = trim(array_pop($allHeaders));
-        while (count($allHeaders) > 0 && '' == $lastHeaders) {
+        while (count($allHeaders) > 0 && '' === $lastHeaders) {
             $lastHeaders = trim(array_pop($allHeaders));
         }
         $headerLines = explode("\r\n", $lastHeaders);
         foreach ($headerLines as $header) {
             $header = trim($header);
-            if ('' == $header) {
+            if ('' === $header) {
                 continue;
             }
             // Status line
-            if (substr(strtolower($header), 0, 5) == 'http/') {
+            if (substr(strtolower($header), 0, 5) === 'http/') {
                 $parts = explode(' ', $header, 3);
                 $response = $response
                     ->withStatus($parts[1])
@@ -118,6 +122,8 @@ class CurlHttpClient extends AbstractHttpClient
      * @param RequestInterface  $request
      * @param ResponseInterface $response
      *
+     * @throws InvalidArgumentException
+     *
      * @return RequestInterface
      */
     public function setRequestCookies(RequestInterface $request, ResponseInterface $response)
@@ -136,7 +142,7 @@ class CurlHttpClient extends AbstractHttpClient
             list($key, $value) = explode('=', $keyAndValue);
             $key = trim($key);
             $value = trim($value);
-            if (isset($cookieHeaders[$key])) {
+            if (array_key_exists($key, $cookieHeaders)) {
                 unset($cookieHeaders[$key]);
             }
             foreach ($temp as $item) {
@@ -144,7 +150,7 @@ class CurlHttpClient extends AbstractHttpClient
 
                 $itemArray = explode('=', $item);
                 $param = strtolower(trim($itemArray[0]));
-                $itemValue = isset($itemArray[1]) ? trim($itemArray[1]) : null;
+                $itemValue = count($itemArray) > 0 ? trim($itemArray[1]) : null;
                 switch ($param) {
                     case 'expires':
                         $exp = new \DateTime($itemValue);
@@ -152,22 +158,24 @@ class CurlHttpClient extends AbstractHttpClient
                             continue 3;
                         }
                         break;
-                    case 'domain':
 
-                        if ($itemValue != $request->getUri()->getHost() &&
-                            !(substr($itemValue, 0, 1) == '.'
+                    case 'domain':
+                        if ($itemValue !== $request->getUri()->getHost()
+                            && !(substr($itemValue, 0, 1) === '.'
                                 && strpos($request->getUri()->getHost(), $itemValue) !== false)
                         ) {
                             continue 3;
                         }
                         break;
+
                     case 'path':
-                        if ($itemValue != '/' && $itemValue != $request->getUri()->getPath()) {
+                        if ($itemValue !== '/' && $itemValue !== $request->getUri()->getPath()) {
                             continue 3;
                         }
                         break;
+
                     case 'secure':
-                        if ($request->getUri()->getScheme() != 'https') {
+                        if ($request->getUri()->getScheme() !== 'https') {
                             continue 3;
                         }
                         break;
@@ -177,6 +185,7 @@ class CurlHttpClient extends AbstractHttpClient
         }
 
         if (count($cookieHeaders) > 0) {
+            /** @noinspection CallableParameterUseCaseInTypeContextInspection */
             $request = $request->withHeader('cookie', implode('; ', $cookieHeaders));
         }
         return $request;
@@ -214,6 +223,8 @@ class CurlHttpClient extends AbstractHttpClient
      * Generates cURL options
      *
      * @param RequestInterface $request
+     *
+     * @throws UnexpectedValueException  if unsupported HTTP version requested
      *
      * @return array
      */
@@ -274,13 +285,28 @@ class CurlHttpClient extends AbstractHttpClient
         return $options;
     }
 
+    /**
+     * Return cURL constant for specified HTTP version
+     *
+     * @param string $requestVersion
+     *
+     * @throws UnexpectedValueException if unsupported version requested
+     *
+     * @return int
+     */
     private function getProtocolVersion($requestVersion)
     {
         switch ($requestVersion) {
-            case "1.0": return CURL_HTTP_VERSION_1_0;
-            case "1.1": return CURL_HTTP_VERSION_1_1;
-            case "2.0": throw new \UnexpectedValueException('2.0 not supported');
-            default:    return CURL_HTTP_VERSION_NONE;
+            case '1.0':
+                return CURL_HTTP_VERSION_1_0;
+            case '1.1':
+                return CURL_HTTP_VERSION_1_1;
+            case '2.0':
+                if (defined('CURL_HTTP_VERSION_2_0')) {
+                    return CURL_HTTP_VERSION_2_0;
+                }
+                throw new UnexpectedValueException('libcurl 7.33 needed for HTTP 2.0 support');
         }
+        return CURL_HTTP_VERSION_NONE;
     }
 }
