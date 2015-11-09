@@ -44,7 +44,7 @@ class CurlHttpClient extends AbstractHttpClient
      * @throws InvalidArgumentException
      * @throws Exception
      *
-     * @since x.xx
+     * @since 3.04
      */
     public function sendRequest(RequestInterface $request)
     {
@@ -114,7 +114,7 @@ class CurlHttpClient extends AbstractHttpClient
      *
      * @deprecated use {@link sendRequest()}
      *
-     * @since      x.xx Marked as deprecated
+     * @since      3.04 Marked as deprecated
      * @since      1.00
      */
     public function send(RequestInterface $request)
