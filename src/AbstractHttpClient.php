@@ -7,6 +7,9 @@
  */
 namespace Mekras\Http\Client;
 
+use Http\Client\Exception;
+use Http\Client\HttpClient;
+use InvalidArgumentException;
 use Mekras\Http\Client\Connector\ConnectorInterface;
 use Mekras\Interfaces\Http\Client\HttpClientInterface;
 use Mekras\Interfaces\Http\Message\ResponseFactory;
@@ -20,7 +23,7 @@ use RuntimeException;
  *
  * @since 3.02
  */
-abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactory
+abstract class AbstractHttpClient implements HttpClient, HttpClientInterface, ResponseFactory
 {
     /**
      * PSR-7 provider
@@ -78,6 +81,19 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
     }
 
     /**
+     * Sends a PSR-7 request.
+     *
+     * @param RequestInterface $request
+     *
+     * @return ResponseInterface
+     *
+     * @throws Exception
+     *
+     * @since 3.04
+     */
+    abstract public function sendRequest(RequestInterface $request);
+
+    /**
      * Return available options and there default values
      *
      * @return array
@@ -129,14 +145,16 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
     }
 
     /**
-     * Handles redirection if follow redirection is enabled
+     * Handles redirection if follow redirection is enabled.
      *
      * @param RequestInterface  $request
      * @param ResponseInterface $response
      *
-     * @throws RuntimeException
-     *
      * @return ResponseInterface
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      *
      * @since 3.02
      */
@@ -201,6 +219,6 @@ abstract class AbstractHttpClient implements HttpClientInterface, ResponseFactor
             ->withFragment($fragment);
 
         $request = $request->withUri($uri);
-        return $this->send($request);
+        return $this->sendRequest($request);
     }
 }

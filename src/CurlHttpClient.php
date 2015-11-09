@@ -7,6 +7,7 @@
  */
 namespace Mekras\Http\Client;
 
+use Http\Client\Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -32,18 +33,20 @@ use UnexpectedValueException;
 class CurlHttpClient extends AbstractHttpClient
 {
     /**
-     * Perform an HTTP request and return response
+     * Sends a PSR-7 request.
      *
      * @param RequestInterface $request
      *
-     * @throws RuntimeException if request failed (e. g. network problem)
-     * @throws InvalidArgumentException
-     *
      * @return ResponseInterface
      *
-     * @since 1.00
+     * @throws UnexpectedValueException  if unsupported HTTP version requested
+     * @throws RuntimeException on cURL error
+     * @throws InvalidArgumentException
+     * @throws Exception
+     *
+     * @since 3.04
      */
-    public function send(RequestInterface $request)
+    public function sendRequest(RequestInterface $request)
     {
         $options = $this->createCurlOptions($request);
 
@@ -95,6 +98,32 @@ class CurlHttpClient extends AbstractHttpClient
         $response = $this->followRedirect($request, $response);
 
         return $response;
+    }
+
+    /**
+     * Perform an HTTP request and return response
+     *
+     * @param RequestInterface $request
+     *
+     * @throws UnexpectedValueException  if unsupported HTTP version requested
+     * @throws RuntimeException on cURL error
+     * @throws InvalidArgumentException
+     * @throws Exception
+     *
+     * @return ResponseInterface
+     *
+     * @deprecated use {@link sendRequest()}
+     *
+     * @since      3.04 Marked as deprecated
+     * @since      1.00
+     */
+    public function send(RequestInterface $request)
+    {
+        trigger_error(
+            'Method CurlHttpClient::send is deprecated. Use CurlHttpClient::sendRequest',
+            E_USER_DEPRECATED
+        );
+        return $this->sendRequest($request);
     }
 
     /**
@@ -198,7 +227,7 @@ class CurlHttpClient extends AbstractHttpClient
      * @param string $raw     raw response
      * @param array  $info    cURL response info
      *
-     * @throws RuntimeException
+     * @throws RuntimeException on cURL error
      *
      * @return void
      *

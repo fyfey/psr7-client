@@ -30,7 +30,7 @@ class CurlHttpClientGuzzleTest extends TestCase
         $client = new CurlHttpClient(new GuzzleConnector());
         $request = new Request('GET', 'http://example.org/');
         $request = $request->withHeader('Accept-Encoding', 'text/html');
-        $response = $client->send($request);
+        $response = $client->sendRequest($request);
         static::assertEquals(200, $response->getStatusCode());
         static::assertEquals(['text/html'], $response->getHeader('Content-type'));
         static::assertContains('Example Domain', $response->getBody()->getContents());
@@ -51,7 +51,7 @@ class CurlHttpClientGuzzleTest extends TestCase
 
         $request = new Request('GET', 'http://example.org/');
         /** @var CurlHttpClient $client */
-        $response = $client->send($request);
+        $response = $client->sendRequest($request);
         static::assertEquals(404, $response->getStatusCode());
         static::assertEquals('FOO', $response->getBody()->getContents());
     }
@@ -65,7 +65,7 @@ class CurlHttpClientGuzzleTest extends TestCase
         $client->expects(static::exactly(2))->method('request')->willReturnCallback(
             function ($options, &$raw, &$info) {
                 static $it = 1;
-                if (1 == $it) {
+                if (1 === $it) {
                     $raw = "HTTP/1.1 302 Found\r\nLocation: /foo#bar\r\n\r\n";
                     $info = ['redirect_count' => 0, 'header_size' => 42];
                 } else {
@@ -82,7 +82,7 @@ class CurlHttpClientGuzzleTest extends TestCase
 
         $request = new Request('GET', 'http://example.org/');
         /** @var CurlHttpClient $client */
-        $response = $client->send($request);
+        $response = $client->sendRequest($request);
         static::assertEquals(200, $response->getStatusCode());
         static::assertEquals('FOO', $response->getBody()->getContents());
     }
@@ -104,7 +104,7 @@ class CurlHttpClientGuzzleTest extends TestCase
         $request = (new Request('GET', 'http://example.org/'))
             ->withBody(\GuzzleHttp\Psr7\stream_for('body'));
         /** @var CurlHttpClient $client */
-        $client->send($request);
+        $client->sendRequest($request);
     }
 
     /**
@@ -125,6 +125,6 @@ class CurlHttpClientGuzzleTest extends TestCase
             ->withHeader('Cookie', 'foo=bar')
             ->withAddedHeader('Cookie', 'bar=baz');
         /** @var CurlHttpClient $client */
-        $client->send($request);
+        $client->sendRequest($request);
     }
 }
