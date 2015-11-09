@@ -2,7 +2,11 @@
     "name": "mekras/psr7-client",
     "description": "PSR-7 compatible HTTP client library",
     "type": "library",
-    "keywords": ["psr7", "http", "curl"],
+    "keywords": [
+        "psr7",
+        "http",
+        "curl"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -10,28 +14,32 @@
             "email": "m.krasilnikov@yandex.ru"
         }
     ],
-    "autoload": {
-        "psr-4": {
-            "Mekras\\Http\\Client\\": "src/"
-        }
-    },
     "require": {
         "php": "~5.5",
-
         "mekras/interfaces": "^3.02",
+        "php-http/httplug": "^1.0",
         "psr/http-message": "^1.0",
         "psr/http-message-implementation": "^1.0",
         "psr/log": "~1.0"
     },
-    "require-dev":
-    {
+    "require-dev": {
         "ext-xdebug": "*",
         "guzzlehttp/psr7": "^1.0",
         "satooshi/php-coveralls": "dev-master",
         "zendframework/zend-diactoros": "^1.0"
     },
+    "provide": {
+        "php-http/client-implementation": "1.0"
+    },
     "suggest": {
         "guzzlehttp/psr7": "As PSR-7 implementation",
         "zendframework/zend-diactoros": "As PSR-7 implementation"
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Mekras\\Http\\Client\\": "src/"
+        }
     }
 }
