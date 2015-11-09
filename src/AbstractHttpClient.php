@@ -89,7 +89,7 @@ abstract class AbstractHttpClient implements HttpClient, HttpClientInterface, Re
      *
      * @throws Exception
      *
-     * @since x.xx
+     * @since 3.04
      */
     abstract public function sendRequest(RequestInterface $request);
 
