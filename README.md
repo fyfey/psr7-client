@@ -9,6 +9,10 @@
 
 Simple cURL based PSR-7 compatible HTTP client library.
 
+## Attention!
+
+This package will be replaced with [php-http/curl-client](https://github.com/php-http/curl-client).
+
 ## Supported libraries
 
 * [guzzlehttp/psr7](https://github.com/guzzle/psr7)
