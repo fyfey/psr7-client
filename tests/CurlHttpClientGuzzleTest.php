@@ -32,6 +32,7 @@ class CurlHttpClientGuzzleTest extends TestCase
         $request = $request->withHeader('Accept-Encoding', 'text/html');
         $response = $client->sendRequest($request);
         static::assertEquals(200, $response->getStatusCode());
+        static::assertEquals('1.1', $response->getProtocolVersion());
         static::assertEquals(['text/html'], $response->getHeader('Content-type'));
         static::assertContains('Example Domain', $response->getBody()->getContents());
     }
