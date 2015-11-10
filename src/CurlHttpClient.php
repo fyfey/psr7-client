@@ -80,7 +80,7 @@ class CurlHttpClient extends AbstractHttpClient
                 $parts = explode(' ', $header, 3);
                 $response = $response
                     ->withStatus($parts[1])
-                    ->withProtocolVersion($parts[0]);
+                    ->withProtocolVersion(substr($parts[0], 5));
                 continue;
             }
             // Extract header
