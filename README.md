@@ -13,6 +13,26 @@ Simple cURL based PSR-7 compatible HTTP client library.
 
 This package will be replaced with [php-http/curl-client](https://github.com/php-http/curl-client).
 
+### Migrating to Httplug
+
+1. Add [php-http/httplug](https://packagist.org/packages/php-http/httplug) to your project
+   requirements.
+2. Replace `Mekras\Http\Client\CurlHttpClient` and `Mekras\Interfaces\Http\Client\HttpClientInterface`
+   with `Http\Client\HttpClient` in argument type hints
+3. Replace [send()](https://github.com/mekras/interfaces/blob/v3.3/lib/Http/Client/HttpClientInterface.php#L37)
+   method calls with [sendRequest](https://github.com/php-http/httplug/blob/v1.0.0-alpha2/src/HttpClient.php#L26).
+
+`Mekras\Http\Client\CurlHttpClient` supports both `Mekras\Interfaces\Http\Client\HttpClientInterface`
+and `Http\Client\HttpClient` interfaces, so migration can be done gradually.  
+
+After dropping last `Mekras\Interfaces\Http\Client\HttpClientInterface` usage:
+ 
+4. Add any of [php-http/client-implementation](https://packagist.org/providers/php-http/client-implementation)
+   to your project and configure it.
+5. Replace instances of `Mekras\Http\Client\CurlHttpClient` with instances of chosen
+   `php-http/client-implementation`.
+5. Remove `mekras/psr7-client` requirement from your `composer.json`.
+
 ## Supported libraries
 
 * [guzzlehttp/psr7](https://github.com/guzzle/psr7)
