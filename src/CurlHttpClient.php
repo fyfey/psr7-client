@@ -79,7 +79,7 @@ class CurlHttpClient extends AbstractHttpClient
             if (substr(strtolower($header), 0, 5) === 'http/') {
                 $parts = explode(' ', $header, 3);
                 $response = $response
-                    ->withStatus($parts[1])
+                    ->withStatus((int)$parts[1])
                     ->withProtocolVersion(substr($parts[0], 5));
                 continue;
             }
